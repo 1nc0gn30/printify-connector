@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="pGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00D084" />
+      <stop offset="100%" stop-color="#29AB87" />
+    </linearGradient>
+    <linearGradient id="pGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD34D" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#090A0F" stroke="#1F2937" stroke-width="1.5"/>
+  <!-- Geometric POD Cube / Printing Box -->
+  <path d="M32 12 L50 22 L32 32 L14 22 Z" fill="url(#pGreen)" opacity="0.9" />
+  <path d="M14 22 L32 32 L32 52 L14 42 Z" fill="#15803D" opacity="0.8" />
+  <path d="M50 22 L32 32 L32 52 L50 42 Z" fill="#047857" opacity="0.95" />
+  <!-- Center Core Laser / DPI Aperture -->
+  <circle cx="32" cy="32" r="5" fill="url(#pGold)" filter="url(#glow)"/>
+  <circle cx="32" cy="32" r="2" fill="#FFFFFF"/>
+</svg>

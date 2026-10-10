@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "printify-connector"
+version = "1.0.0"
+description = "Printify Open API v1 & Antigravity MCP Connector for Autonomous POD Routing"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Neal Frazier", email = "neal@nealfrazier.tech" }
+]
+keywords = ["printify", "pod", "print-on-demand", "mcp", "antigravity", "shopify", "etsy"]
+
+[project.scripts]
+printify-connector = "printify_connector.cli:main"
