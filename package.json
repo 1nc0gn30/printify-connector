@@ -1,0 +1,11 @@
+{
+  "name": "printify-connector",
+  "version": "2.5.0",
+  "description": "Autonomous zero-dependency Printify Open API v1 connector, 20% Premium margin calculator, artwork DPI auditor, and Antigravity MCP suite.",
+  "author": "Neal Frazier Tech (@1nc0gn30)",
+  "license": "MIT",
+  "scripts": {
+    "serve": "python3 -m http.server 8115 --directory public",
+    "test": "pytest tests"
+  }
+}
