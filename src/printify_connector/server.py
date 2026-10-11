@@ -23,6 +23,26 @@ from .catalog import (
 from .margin_engine import calculate_multi_channel_margins, calculate_shipping_rates
 
 
+def _is_local_origin(origin) -> bool:
+    """Browser Origin check. No Origin header = non-browser client (CLI/agent): allowed.
+    Otherwise only http(s)://localhost / 127.0.0.1 / [::1] pages may call this API, so a
+    random website can't drive the local server from the user's browser (CSRF)."""
+    if not origin:
+        return True
+    from urllib.parse import urlparse
+    try:
+        u = urlparse(origin)
+    except ValueError:
+        return False
+    return u.scheme in ("http", "https") and u.hostname in ("localhost", "127.0.0.1", "::1")
+
+
+def _cors_origin(handler) -> str:
+    origin = handler.headers.get("Origin")
+    return origin if origin and _is_local_origin(origin) else "http://127.0.0.1"
+
+
+
 class PrintifyRequestHandler(SimpleHTTPRequestHandler):
     """Handles static files from public/ and JSON API endpoints."""
 
@@ -40,7 +60,7 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
@@ -49,7 +69,7 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         """Handle CORS pre-flight requests."""
         self.send_response(HTTPStatus.NO_CONTENT)
-        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", _cors_origin(self))
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
         self.end_headers()
@@ -123,6 +143,14 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        if not _is_local_origin(self.headers.get("Origin")):
+            _body = b'{"error": "cross-origin request blocked"}'
+            self.send_response(403)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(_body)))
+            self.end_headers()
+            self.wfile.write(_body)
+            return
         """Handle POST calculation and auditing requests."""
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/")

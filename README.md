@@ -68,3 +68,8 @@ The server binds to `127.0.0.1` by default. To reach it from other devices,
 opt in explicitly with `--host 0.0.0.0` (or set `ZOTH_BIND_HOST=0.0.0.0`; an IP
 in `HOST` is also honoured, a plain hostname is ignored) and only on a trusted
 network.
+
+## Safety
+
+- The browser API only accepts cross-origin requests from `localhost` / `127.0.0.1` pages. POSTs from any other website get `403`, and CORS echoes only local origins (never `*`), so a site you visit can't drive or read this local server. CLI and agent clients (no `Origin` header) are unaffected.
+- `PRINTIFY_API_TOKEN` is only used in the `Authorization` header. The connector makes read-only catalog/shop calls and builds product payloads locally; it never creates products or orders.
