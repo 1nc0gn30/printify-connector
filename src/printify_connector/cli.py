@@ -42,7 +42,7 @@ def main():
     margin_parser.add_argument("--blueprint", type=str, default="bella_canvas_3001", help="Blueprint ID")
     margin_parser.add_argument("--price", type=float, default=28.00, help="Retail sale price")
     margin_parser.add_argument("--shipping", type=float, default=4.99, help="Shipping charged to customer")
-    margin_parser.add_argument("--premium", action="store_true", help="Apply Printify Premium 20% cost reduction")
+    margin_parser.add_argument("--premium", action="store_true", help="Apply Printify Premium 20%% cost reduction")
 
     # Command: audit
     audit_parser = subparsers.add_parser("audit", help="Audit artwork dimensions and DPI against blueprint print area")
