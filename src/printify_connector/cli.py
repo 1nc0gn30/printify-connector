@@ -14,6 +14,24 @@ from .mcp_server import run_mcp_server
 from .server import run_server
 
 
+def _default_bind_host() -> str:
+    """Bind address: localhost unless explicitly opted in via $ZOTH_BIND_HOST or
+    $HOST (IP literal only; zsh sets HOST to the hostname) or --host."""
+    import ipaddress, os
+    for var in ("ZOTH_BIND_HOST", "HOST"):
+        val = os.environ.get(var, "").strip()
+        if val == "localhost":
+            return "127.0.0.1"
+        if val:
+            try:
+                ipaddress.ip_address(val)
+                return val
+            except ValueError:
+                pass
+    return "127.0.0.1"
+
+
+
 def main():
     parser = argparse.ArgumentParser(
         prog="printify-connector",
@@ -24,7 +42,7 @@ def main():
     # Command: serve
     serve_parser = subparsers.add_parser("serve", help="Run the HTTP & REST API daemon")
     serve_parser.add_argument("--port", type=int, default=8115, help="HTTP listening port (default: 8115)")
-    serve_parser.add_argument("--host", type=str, default="0.0.0.0", help="Binding host address (default: 0.0.0.0)")
+    serve_parser.add_argument("--host", type=str, default=_default_bind_host(), help="Host interface (default: 127.0.0.1 or $ZOTH_BIND_HOST; use 0.0.0.0 only on trusted networks)")
 
     # Command: mcp
     subparsers.add_parser("mcp", help="Run the Antigravity Model Context Protocol (MCP) stdio server")

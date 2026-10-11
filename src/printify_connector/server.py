@@ -247,7 +247,7 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
         return self._send_json({"error": f"Path not found: {path}"}, status=HTTPStatus.NOT_FOUND)
 
 
-def run_server(port=8115, host="0.0.0.0"):
+def run_server(port=8115, host="127.0.0.1"):
     """Start the Printify Connector HTTP daemon."""
     server_address = (host, port)
     httpd = HTTPServer(server_address, PrintifyRequestHandler)
