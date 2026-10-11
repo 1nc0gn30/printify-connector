@@ -144,13 +144,17 @@ function unlockProMode(saveToStorage = true) {
   }
 
   // Update UI Elements
-  const proBadge = document.getElementById("proStatusBadge");
+  const proBadge = document.getElementById("pro-badge") || document.getElementById("proStatusBadge");
   if (proBadge) {
     proBadge.innerText = "⭐ PRO ACTIVE";
+    proBadge.classList.remove("badge-free");
+    proBadge.classList.add("badge-pro");
     proBadge.style.background = "rgba(212, 175, 55, 0.2)";
     proBadge.style.color = "var(--gold)";
     proBadge.style.borderColor = "var(--gold)";
   }
+
+  document.body.classList.add("licensed", "pro-unlocked");
 
   // Remove blur wrappers
   const wrappers = document.querySelectorAll(".paywall-wrapper");
@@ -214,6 +218,40 @@ function setupEventListeners() {
       generateProductPayload();
     });
   }
+
+  // Modal open & close triggers
+  const btnHeaderKey = document.getElementById("btn-header-key");
+  if (btnHeaderKey) {
+    btnHeaderKey.addEventListener("click", () => openPaywallModal("Header Key Button"));
+  }
+
+  const btnUnlockPaywall = document.getElementById("btn-unlock-paywall");
+  if (btnUnlockPaywall) {
+    btnUnlockPaywall.addEventListener("click", () => openPaywallModal("Paywall Overlay"));
+  }
+
+  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
+  if (modal) {
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closePaywallModal();
+    });
+  }
+
+  const keyInput = document.getElementById("license-key-input") || document.getElementById("licenseKeyInput");
+  if (keyInput) {
+    keyInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        activateKey();
+      }
+    });
+  }
+
+  window.addEventListener("keydown", e => {
+    if (e.key === "Escape") closePaywallModal();
+  });
+
+  setupDePay();
 }
 
 // Handle Client-Side Image File Drag-and-Drop
@@ -407,14 +445,58 @@ function generateProductPayload() {
 function triggerProAction(actionName) {
   if (isProActive) {
     if (actionName === "copy_payload") {
-      const output = document.getElementById("payloadOutput").textContent;
+      const output = document.getElementById("payloadOutput") ? document.getElementById("payloadOutput").textContent : "";
       navigator.clipboard.writeText(output).then(() => {
+        const btn = document.getElementById("btn-copy-payload");
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = "✅ Copied to Clipboard!";
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        } else {
+          alert("✅ Printify Product Payload copied to clipboard!");
+        }
+      }).catch(() => {
         alert("✅ Printify Product Payload copied to clipboard!");
       });
     } else if (actionName === "export_matrix") {
-      alert("✅ Exporting Verified Print Provider & Margin Matrix CSV...");
+      // Build real CSV
+      let csv = "Provider ID,Name,Location,Rating,Avg Production (Days),Standard Shipping US ($),Additional Item Shipping ($)\n";
+      PROVIDERS.forEach(p => {
+        csv += `"${p.id}","${p.name}","${p.location}",${p.rating},${p.days},${p.ship_us},${p.ship_add}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "printify_verified_providers_matrix.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } else if (actionName === "bulk_publisher") {
+      // Generate configuration manifest
+      const manifest = {
+        name: "Printify Pro Sovereign Automation Bundle",
+        version: "1.0.0",
+        author: "Neal Frazier Tech (@1nc0gn30)",
+        engine: "Autonomous Sovereign POD Matrix",
+        routes: [
+          { route: "/webhooks/printify/order-created", action: "dispatch_fulfillment", channels: ["shopify", "etsy"] },
+          { route: "/webhooks/printify/inventory-low", action: "route_fallback_provider", primary: "SwiftPOD", secondary: "Monster Digital" }
+        ],
+        providers: PROVIDERS
+      };
+      const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "printify_automation_bundle.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } else {
-      alert(`✅ Action '${actionName}' executed successfully!`);
+      alert(`✅ Pro Action '${actionName}' executed successfully!`);
     }
   } else {
     openPaywallModal(`Pro Feature: ${actionName}`);
@@ -423,34 +505,83 @@ function triggerProAction(actionName) {
 
 // Paywall Modal Handlers
 function openPaywallModal(triggerContext = "") {
-  const modal = document.getElementById("paywallModal");
+  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
   if (modal) {
+    modal.classList.add("is-open");
     modal.style.display = "flex";
   }
 }
 
 function closePaywallModal() {
-  const modal = document.getElementById("paywallModal");
+  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
   if (modal) {
+    modal.classList.remove("is-open");
     modal.style.display = "none";
   }
 }
 
 // License Activation Check
 function activateKey() {
-  const input = document.getElementById("licenseKeyInput");
+  const input = document.getElementById("license-key-input") || document.getElementById("licenseKeyInput");
+  const statusEl = document.getElementById("license-status");
   const key = input ? input.value.trim() : "";
 
   if (!key) {
-    alert("Please enter a valid license key or receipt email.");
+    if (statusEl) {
+      statusEl.style.color = "var(--ruby)";
+      statusEl.innerText = "Please enter a valid license key or receipt email.";
+    } else {
+      alert("Please enter a valid license key or receipt email.");
+    }
     return;
   }
 
-  // Accept valid key or any active receipt format
+  // Accept valid key or any active receipt format (>= 6 chars)
   if (key.length >= 6) {
     unlockProMode(true);
-    alert("🎉 Sovereign Pro License Activated Successfully!");
+    if (statusEl) {
+      statusEl.style.color = "var(--emerald)";
+      statusEl.innerText = "⭐ Sovereign Pro License Activated Successfully!";
+    }
   } else {
-    alert("Invalid license key. Please check your Stripe or DePay receipt.");
+    if (statusEl) {
+      statusEl.style.color = "var(--ruby)";
+      statusEl.innerText = "Invalid license key (minimum 6 characters required).";
+    } else {
+      alert("Invalid license key (minimum 6 characters required).");
+    }
   }
+}
+
+// DePay Widget or Solana Clipboard Fallback
+function setupDePay() {
+  document.querySelectorAll(".btn-depay-trigger").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      if (window.DePayButtons) return;
+      if (window.DePay) {
+        try {
+          window.DePay.Payment({
+            accept: [
+              {
+                blockchain: 'solana',
+                token: '11111111111111111111111111111111',
+                receiver: 'GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK',
+                amount: 19
+              }
+            ]
+          });
+          return;
+        } catch (err) {
+          console.warn("DePay invocation fallback:", err);
+        }
+      }
+      const solReceiver = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
+      navigator.clipboard.writeText(solReceiver).then(() => {
+        alert(`⚡ DePay Solana Receiver copied to clipboard:\n${solReceiver}\n\nTransfer $19 SOL or USDC and enter your tx hash or receipt email as your license key.`);
+      }).catch(() => {
+        alert(`⚡ DePay Solana Receiver:\n${solReceiver}\n\nTransfer $19 SOL or USDC and enter your tx hash or receipt email as your license key.`);
+      });
+    });
+  });
 }
