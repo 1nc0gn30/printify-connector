@@ -1,3 +1,9 @@
+<div align="center">
+  <img src="assets/hero-banner.svg" alt="Printify Connector — Sovereign Architecture Banner" width="100%" />
+</div>
+
+<br />
+
 # Printify Connector 📦
 
 > ⚡ **Live Web Application**: [https://printify-connector.netlify.app](https://printify-connector.netlify.app)  
