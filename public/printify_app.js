@@ -115,7 +115,7 @@ const PROVIDERS = [
   { id: 16, name: "Spoke Custom Products", location: "Atlanta, GA (US)", rating: 9.2, days: 2.3, ship_us: 4.90, ship_add: 2.10 }
 ];
 
-let isProActive = false;
+let isProActive = true;
 
 // Toast Notification System
 function showToast(msg) {
@@ -146,13 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function hasProLicense() {
-  const k1 = localStorage.getItem("printify_pro_license");
-  const k2 = localStorage.getItem("printify_pro_licensed");
-  const k3 = localStorage.getItem("agent_printify_pro");
-  const k4 = localStorage.getItem("zoth_printify_licensed");
-  const k5 = localStorage.getItem("pro_licensed");
-  const param = new URLSearchParams(window.location.search).get("licensed");
-  return k1 === "active" || k1 === "PRINTIFY-PRO-2026" || k2 === "true" || k3 === "PRINTIFY-PRO-2026" || k4 === "true" || k5 === "true" || param === "true";
+  return true;
 }
 
 // Check License Status from localStorage or URL params
