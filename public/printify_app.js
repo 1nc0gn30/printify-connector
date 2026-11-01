@@ -1,6 +1,6 @@
 /**
  * Printify Connector — Avant-Garde Client Application
- * Neal Frazier Tech (@1nc0gn30) • NullAI Platform
+ * 1nc0gn30 (@1nc0gn30) • NullAI Platform
  * 100% In-Browser Working Utility — Zero Fake Work
  */
 
@@ -305,7 +305,7 @@ function setupEventListeners() {
     if (e.key === "Escape") closePaywallModal();
   });
 
-  setupDePay();
+  setupSolanaTip();
 }
 
 // Handle Client-Side Image File Drag-and-Drop
@@ -536,7 +536,7 @@ function triggerProAction(actionName) {
       const manifest = {
         name: "Printify Pro Sovereign Automation Bundle",
         version: "2.5.0",
-        author: "Neal Frazier Tech (@1nc0gn30)",
+        author: "1nc0gn30 (@1nc0gn30)",
         engine: "Autonomous Sovereign POD Matrix",
         routes: [
           { route: "/webhooks/printify/order-created", action: "dispatch_fulfillment", channels: ["shopify", "etsy"] },
@@ -610,15 +610,15 @@ function activateKey() {
   }
 }
 
-// DePay Widget or Solana Clipboard Fallback
-function setupDePay() {
-  document.querySelectorAll(".btn-depay-trigger").forEach(btn => {
+// Solana Tip Widget or Solana Clipboard Fallback
+function setupSolanaTip() {
+  document.querySelectorAll(".btn-solana_tip-trigger").forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
-      if (window.DePayButtons) return;
-      if (window.DePay) {
+      if (window.SolanaTipButtons) return;
+      if (window.Solana Tip) {
         try {
-          window.DePay.Payment({
+          window.Solana Tip.Payment({
             accept: [
               {
                 blockchain: 'solana',
@@ -630,18 +630,18 @@ function setupDePay() {
           });
           return;
         } catch (err) {
-          console.warn("DePay invocation fallback:", err);
+          console.warn("Solana Tip invocation fallback:", err);
         }
       }
       const solReceiver = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
       if (navigator.clipboard) {
         navigator.clipboard.writeText(solReceiver).then(() => {
-          showToast(`⚡ DePay Solana Receiver copied: ${solReceiver}`);
+          showToast(`⚡ Solana Tip Solana Receiver copied: ${solReceiver}`);
         }).catch(() => {
-          showToast(`⚡ DePay Solana Receiver: ${solReceiver}`);
+          showToast(`⚡ Solana Tip Solana Receiver: ${solReceiver}`);
         });
       } else {
-        showToast(`⚡ DePay Solana Receiver: ${solReceiver}`);
+        showToast(`⚡ Solana Tip Solana Receiver: ${solReceiver}`);
       }
     });
   });

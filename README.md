@@ -32,7 +32,7 @@ Autonomous **Printify Open API v1 Connector**, 20% Premium Margin Engine, Artwor
 ## ⚙️ How It Works
 
 1. **Standalone Enclave (`127.0.0.1:8115`)**: Powered by `server.py` serving a dark-glassmorphic cockpit with live `/health`, `/api/stats`, `/api/blueprints`, `/api/providers`, and `/api/margins` endpoints.
-2. **Zoth Studio v2 God-Mode Route**: Deeply integrated into the 71-Tool Sovereign Matrix at `/tools/printify-connector`.
+2. **Zoth Studio v2 God-Mode Route**: Deeply integrated into the 72-Tool Sovereign Matrix at `/tools/printify-connector`.
 3. **ZothOS CLI (`printify-connector`)**: Native binary installed in `/usr/local/bin` and `~/.local/bin` for automated command-line audits and CI/CD pipelines.
 4. **Antigravity MCP Bridge**: Standard JSON-RPC 2.0 stdio server providing 6 autonomous tools for AI agents.
 
@@ -76,7 +76,7 @@ python3 server.py --port 8115
 
 ---
 
-## ☕ Support Neal Frazier Tech & NullAI
+## ☕ Support 1nc0gn30 • NullAI & NullAI
 
 Printify Connector is 100% free, open-source, and sovereign software. If this tool brings you value, consider supporting our ongoing development:
 
@@ -86,5 +86,5 @@ Printify Connector is 100% free, open-source, and sovereign software. If this to
 ---
 
 <div align="center">
-  <sub>Engineered by <b>Neal Frazier Tech</b> (<a href="https://github.com/1nc0gn30">@1nc0gn30</a>) &bull; <a href="https://nullai.tech">NullAI Platform</a> &bull; <a href="https://zoth.nullai.tech">Zoth Studio v2</a></sub>
+  <sub>Engineered by <b>1nc0gn30 • NullAI</b> (<a href="https://github.com/1nc0gn30">@1nc0gn30</a>) &bull; <a href="https://nullai.tech">NullAI Platform</a> &bull; <a href="https://zoth.nullai.tech">Zoth Studio v2</a></sub>
 </div>

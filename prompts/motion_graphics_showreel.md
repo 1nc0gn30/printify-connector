@@ -18,6 +18,6 @@
   - Automated carrier rate comparison: Monster Digital vs SwiftPOD vs Drive Fulfillment.
   - 1-Click sync to Etsy and Shopify webhooks.
 - **11.8s – 15.0s | Scene 4: Sovereign Treasury Call to Action**
-  - Pure CSS conic border beam illuminates the founding member card: `$19 Lifetime vs $79 Regular`.
+  - Pure CSS conic border beam illuminates the founding member card: `$0 Lifetime vs $0 Regular`.
   - Dual checkout buttons ignite: `[Pay with Card / Apple Pay]` + `[Instant Solana Tip]`.
-  - Final badge: `Engineered by Neal Frazier Tech (@1nc0gn30) • NullAI Platform`.
+  - Final badge: `Engineered by 1nc0gn30 (@1nc0gn30) • NullAI Platform`.

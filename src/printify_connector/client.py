@@ -1,6 +1,6 @@
 """Printify API v1 Client.
 
-Engineered by Neal Frazier Tech (@1nc0gn30) • NullAI Platform.
+Engineered by 1nc0gn30 (@1nc0gn30) • NullAI Platform.
 100% Python Standard Library — Zero External Dependencies.
 """
 
@@ -54,7 +54,7 @@ class PrintifyClient:
         if not self.is_live:
             return {
                 "id": self.shop_id,
-                "title": "Neal Frazier Tech Sovereign POD Hub",
+                "title": "1nc0gn30 • NullAI Sovereign POD Hub",
                 "sales_channel": "shopify,etsy",
                 "mode": "OFFLINE_DETERMINISTIC",
                 "api_connected": False,
@@ -143,7 +143,7 @@ class PrintifyClient:
         if "shops" in endpoint:
             return {
                 "id": "mock_shop_1nc0gn30",
-                "title": "Neal Frazier Tech Sovereign Store",
+                "title": "1nc0gn30 • NullAI Sovereign Store",
                 "sales_channel": "shopify"
             }
         return {"status": "ok", "mode": "MOCK_MODE", "endpoint": endpoint}
