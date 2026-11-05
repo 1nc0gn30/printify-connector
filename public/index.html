@@ -469,6 +469,22 @@
   </div>
 
   <script src="/printify_app.js"></script>
-  <script src="/assets/sovereign-upgrade.js" defer></script>
+  
+
+  <script src="/sovereign_tutorial.js"></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", function() {
+      if (window.createSovereignTutorial) {
+        window.createSovereignTutorial({
+          toolId: "printify-connector",
+          toolName: "Printify Connector",
+          tagline: "Direct catalog and order fulfillment bridge for the Printify network!",
+          accentColor: "#22C55E",
+          steps: [{"icon": "\ud83c\udfec", "title": "Huge Printify Catalog", "desc": "Search hundreds of print providers, blank shirts, phone cases, and accessories with live base pricing."}, {"icon": "\ud83d\udce6", "title": "Automated Order Sync", "desc": "Connects your online stores to Printify's API so orders flow directly to production without manual copy-pasting."}, {"icon": "\ud83d\udee1\ufe0f", "title": "Stock & Out-of-Stock Alerts", "desc": "Warns you instantly if a specific color or size runs out of stock so you can switch printers."}]
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
