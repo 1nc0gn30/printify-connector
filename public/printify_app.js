@@ -495,72 +495,83 @@ function generateProductPayload() {
   }
 }
 
-// Action Interceptors for Pro Features
+// Open-Access Action Handlers (100% Unlocked by Default)
 function triggerProAction(actionName) {
-  if (isProActive || hasProLicense()) {
-    if (actionName === "copy_payload") {
-      const output = document.getElementById("payloadOutput") ? document.getElementById("payloadOutput").textContent : "";
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(output).then(() => {
-          const btn = document.getElementById("btn-copy-payload");
-          if (btn) {
-            const orig = btn.innerHTML;
-            btn.innerHTML = "✅ Copied to Clipboard!";
-            setTimeout(() => { btn.innerHTML = orig; }, 2000);
-          }
-          showToast("✅ Printify Product Payload copied to clipboard!");
-        }).catch(() => {
-          showToast("✅ Printify Product Payload copied to clipboard!");
-        });
-      } else {
+  if (actionName === "copy_payload") {
+    const output = document.getElementById("payloadOutput") ? document.getElementById("payloadOutput").textContent : "";
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = document.getElementById("btn-copy-payload");
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = "✅ Copied to Clipboard!";
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        }
         showToast("✅ Printify Product Payload copied to clipboard!");
-      }
-    } else if (actionName === "export_matrix") {
-      // Build real CSV
-      let csv = "Provider ID,Name,Location,Rating,Avg Production (Days),Standard Shipping US ($),Additional Item Shipping ($)\n";
-      PROVIDERS.forEach(p => {
-        csv += `"${p.id}","${p.name}","${p.location}",${p.rating},${p.days},${p.ship_us},${p.ship_add}\n`;
+      }).catch(() => {
+        showToast("✅ Printify Product Payload copied to clipboard!");
       });
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "printify_verified_providers_matrix.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("📥 Verified Providers Matrix CSV Exported!");
-    } else if (actionName === "bulk_publisher") {
-      // Generate configuration manifest
-      const manifest = {
-        name: "Printify Pro Sovereign Automation Bundle",
-        version: "2.5.0",
-        author: "1nc0gn30 (@1nc0gn30)",
-        engine: "Autonomous Sovereign POD Matrix",
-        routes: [
-          { route: "/webhooks/printify/order-created", action: "dispatch_fulfillment", channels: ["shopify", "etsy"] },
-          { route: "/webhooks/printify/inventory-low", action: "route_fallback_provider", primary: "SwiftPOD", secondary: "Monster Digital" }
-        ],
-        providers: PROVIDERS
-      };
-      const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "printify_automation_bundle.json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("📦 Printify Automation Bundle Exported!");
     } else {
-      showToast(`✅ Pro Action '${actionName}' executed successfully!`);
+      showToast("✅ Printify Product Payload copied to clipboard!");
     }
+  } else if (actionName === "export_matrix") {
+    // Build real CSV
+    let csv = "Provider ID,Name,Location,Rating,Avg Production (Days),Standard Shipping US ($),Additional Item Shipping ($)\n";
+    PROVIDERS.forEach(p => {
+      csv += `"${p.id}","${p.name}","${p.location}",${p.rating},${p.days},${p.ship_us},${p.ship_add}\n`;
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "printify_verified_providers_matrix.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("📥 Verified Providers Matrix CSV Exported!");
+  } else if (actionName === "bulk_publisher") {
+    // Generate configuration manifest
+    const manifest = {
+      name: "Printify Pro Sovereign Automation Bundle",
+      version: "2.5.0",
+      author: "Neal Frazier Tech (@1nc0gn30)",
+      engine: "Autonomous Sovereign POD Matrix",
+      routes: [
+        { route: "/webhooks/printify/order-created", action: "dispatch_fulfillment", channels: ["shopify", "etsy"] },
+        { route: "/webhooks/printify/inventory-low", action: "route_fallback_provider", primary: "SwiftPOD", secondary: "Monster Digital" }
+      ],
+      providers: PROVIDERS
+    };
+    const blob = new Blob([JSON.stringify(manifest, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "printify_automation_bundle.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("📦 Printify Automation Bundle Exported!");
   } else {
-    openPaywallModal(`Pro Feature: ${actionName}`);
+    showToast(`✅ Action '${actionName}' executed successfully!`);
   }
 }
+
+function copySolanaAddress(btn) {
+  const addr = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
+  navigator.clipboard.writeText(addr).then(() => {
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = "✓ Solana Address Copied!";
+      setTimeout(() => { btn.textContent = orig; }, 2500);
+    }
+    showToast("✓ Solana Tip Address copied to clipboard!");
+  }).catch(() => {
+    window.open("solana:" + addr, "_blank");
+  });
+}
+window.copySolanaAddress = copySolanaAddress;
 
 // Paywall Modal Handlers
 function openPaywallModal(triggerContext = "") {
