@@ -535,7 +535,7 @@ function triggerProAction(actionName) {
     const manifest = {
       name: "Printify Pro Sovereign Automation Bundle",
       version: "2.5.0",
-      author: "Neal Frazier Tech (@1nc0gn30)",
+      author: "1nc0gn30 (@1nc0gn30) • NullAI Platform",
       engine: "Autonomous Sovereign POD Matrix",
       routes: [
         { route: "/webhooks/printify/order-created", action: "dispatch_fulfillment", channels: ["shopify", "etsy"] },
@@ -621,38 +621,21 @@ function activateKey() {
   }
 }
 
-// Solana Tip Widget or Solana Clipboard Fallback
+// Voluntary Solana Tip Clipboard Helper
 function setupSolanaTip() {
   document.querySelectorAll(".btn-solana_tip-trigger").forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
       if (window.SolanaTipButtons) return;
-      if (window.Solana Tip) {
-        try {
-          window.Solana Tip.Payment({
-            accept: [
-              {
-                blockchain: 'solana',
-                token: '11111111111111111111111111111111',
-                receiver: 'GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK',
-                amount: 19
-              }
-            ]
-          });
-          return;
-        } catch (err) {
-          console.warn("Solana Tip invocation fallback:", err);
-        }
-      }
       const solReceiver = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
       if (navigator.clipboard) {
         navigator.clipboard.writeText(solReceiver).then(() => {
-          showToast(`⚡ Solana Tip Solana Receiver copied: ${solReceiver}`);
+          showToast(`⚡ Solana Tip Address copied: ${solReceiver}`);
         }).catch(() => {
-          showToast(`⚡ Solana Tip Solana Receiver: ${solReceiver}`);
+          showToast(`⚡ Solana Tip Address: ${solReceiver}`);
         });
       } else {
-        showToast(`⚡ Solana Tip Solana Receiver: ${solReceiver}`);
+        showToast(`⚡ Solana Tip Address: ${solReceiver}`);
       }
     });
   });
