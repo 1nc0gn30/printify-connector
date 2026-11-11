@@ -192,10 +192,6 @@ input:invalid:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35) !important;
 }
 
-#license-key-input:invalid {
-  border-color: var(--ruby, #EF4444);
-}
-
 #retailPrice:invalid,
 #shippingCharged:invalid,
 #artWidth:invalid,

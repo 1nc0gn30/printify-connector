@@ -20,6 +20,7 @@ from .catalog import (
     list_blueprints,
     list_providers,
 )
+from . import __version__
 from .margin_engine import calculate_multi_channel_margins, calculate_shipping_rates
 
 
@@ -85,8 +86,9 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
             return self._send_json({
                 "status": "healthy",
                 "service": "printify-connector",
-                "version": "1.0.0",
-                "port": 8115,
+                "version": __version__,
+                "port": self.server.server_address[1],
+                "apiConfigured": bool(os.environ.get("PRINTIFY_API_TOKEN")),
                 "engine": "Python Standard Library (Zero External Dependencies)",
                 "creator": "1nc0gn30 (@1nc0gn30)"
             })
@@ -95,7 +97,7 @@ class PrintifyRequestHandler(SimpleHTTPRequestHandler):
             return self._send_json({
                 "service": "printify-connector",
                 "status": "online",
-                "port": 8115,
+                "port": self.server.server_address[1],
                 "blueprintsCount": len(BLUEPRINTS),
                 "providersCount": len(PRINT_PROVIDERS),
                 "premiumDiscountPct": 20.0,
@@ -279,7 +281,7 @@ def run_server(port=8115, host="127.0.0.1"):
     """Start the Printify Connector HTTP daemon."""
     server_address = (host, port)
     httpd = HTTPServer(server_address, PrintifyRequestHandler)
-    print(f"📦 Printify Connector HTTP Server active at http://{host}:{port}")
+    print(f"Printify Connector listening on http://{host}:{httpd.server_address[1]}")
     print(f"   • Endpoints: /api/stats, /api/blueprints, /api/providers, /api/margins, /api/audit")
     try:
         httpd.serve_forever()

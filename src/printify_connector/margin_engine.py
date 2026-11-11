@@ -63,7 +63,7 @@ def calculate_margins(
         # Shopify Basic: 2.9% + $0.30 payment gateway fee
         total_platform_fees = round((total_revenue * 0.029) + 0.30, 2)
     else:
-        # Default direct checkout / web3 (e.g. Stripe 2.9% + $0.30 or DePay 0% fee)
+        # Default direct checkout (e.g. Stripe 2.9% + $0.30)
         total_platform_fees = round((total_revenue * 0.029) + 0.30, 2)
 
     # 5. Net Profit & Margin

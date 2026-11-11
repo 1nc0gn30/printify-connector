@@ -127,9 +127,13 @@ class TestArtworkAuditor(unittest.TestCase):
 
 class TestClientAndMCP(unittest.TestCase):
     def test_client_offline_mock(self):
-        client = PrintifyClient()
+        client = PrintifyClient(token="")
+        client.token = ""
+        client.is_live = False
         shop_info = client.get_shop_info()
-        self.assertEqual(shop_info["mode"], "OFFLINE_DETERMINISTIC")
+        self.assertEqual(shop_info["mode"], "OFFLINE")
+        self.assertFalse(shop_info["api_connected"])
+        self.assertIn("PRINTIFY_API_TOKEN", shop_info["error"])
         payload = client.create_product_payload(
             blueprint_id=12,
             title="Test Tee",

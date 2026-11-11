@@ -235,6 +235,25 @@ SLUG_TO_PROVIDER_ID: Dict[str, int] = {
 }
 
 
+# Short category names accepted by the CLI/API, mapped to substrings of catalog categories.
+CATEGORY_ALIASES = {
+    "apparel": ("clothing",),
+    "clothing": ("clothing",),
+    "drinkware": ("mugs", "drinkware"),
+    "home": ("home & living",),
+    "stationery": ("stationery",),
+}
+
+# ISO country codes accepted by list_providers(), mapped to location text in the catalog.
+COUNTRY_ALIASES = {
+    "US": ("UNITED STATES", "(US)"),
+    "USA": ("UNITED STATES", "(US)"),
+    "UK": ("UNITED KINGDOM", "(UK)"),
+    "GB": ("UNITED KINGDOM", "(UK)"),
+    "DE": ("GERMANY", "(DE)"),
+}
+
+
 def search_blueprints(query: Optional[str] = None, category: Optional[str] = None) -> List[Dict[str, Any]]:
     """Filter blueprints by search query or category."""
     results = PRINTIFY_BLUEPRINTS
@@ -247,8 +266,9 @@ def search_blueprints(query: Optional[str] = None, category: Optional[str] = Non
             or any(q in t for t in b["tags"])
         ]
     if category:
-        cat = category.lower()
-        results = [b for b in results if cat in b["category"].lower()]
+        cat = category.lower().strip()
+        needles = CATEGORY_ALIASES.get(cat, (cat,))
+        results = [b for b in results if any(n in b["category"].lower() for n in needles)]
     return results
 
 
@@ -291,8 +311,9 @@ def list_providers(country: Optional[str] = None) -> List[Dict[str, Any]]:
     """List print providers, optionally filtered by country code."""
     if not country:
         return PRINT_PROVIDERS
-    c = country.upper()
-    return [p for p in PRINT_PROVIDERS if c in p.get("location", "").upper()]
+    c = country.upper().strip()
+    needles = COUNTRY_ALIASES.get(c, (c,))
+    return [p for p in PRINT_PROVIDERS if any(n in p.get("location", "").upper() for n in needles)]
 
 
 def get_provider_by_id(provider_id: int) -> Optional[Dict[str, Any]]:

@@ -4,15 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "printify-connector"
-version = "1.0.0"
+version = "2.5.0"
 description = "Printify Open API v1 & Antigravity MCP Connector for Autonomous POD Routing"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "1nc0gn30", email = "neal@nullai.tech" }
+    { name = "1nc0gn30", email = "hello@nullai.tech" }
 ]
-keywords = ["printify", "pod", "print-on-demand", "mcp", "antigravity", "shopify", "etsy"]
+keywords = ["printify", "pod", "print-on-demand", "mcp", "shopify", "etsy"]
+
+[project.urls]
+Homepage = "https://zoth.nullai.tech/tools/printify-connector"
+Repository = "https://github.com/1nc0gn30/printify-connector"
+Documentation = "https://nullai.tech"
 
 [project.scripts]
 printify-connector = "printify_connector.cli:main"

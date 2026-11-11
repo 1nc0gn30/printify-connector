@@ -18,6 +18,7 @@ from .catalog import list_blueprints, list_providers
 from .margin_engine import calculate_multi_channel_margins
 from .mcp_server import run_mcp_server
 from .server import run_server
+from . import __version__
 
 
 def _default_bind_host() -> str:
@@ -49,7 +50,7 @@ C_RESET = "\033[0m"
 
 
 def print_banner() -> None:
-    print(f"{C_GOLD}{C_BOLD}📦 PRINTIFY CONNECTOR v2.5.0{C_RESET}")
+    print(f"{C_GOLD}{C_BOLD}PRINTIFY CONNECTOR v{__version__}{C_RESET}")
     print(f"{C_DIM}Printify Open API v1 Connector & 20% Premium Margin Engine{C_RESET}")
     print(f"{C_DIM}Engineered by 1nc0gn30 (@1nc0gn30) • NullAI Platform{C_RESET}\n")
 
@@ -69,11 +70,12 @@ def cmd_status(host: str = "127.0.0.1", port: int = 8115, as_json: bool = False)
     data = {
         "status": "online" if live_info else "standby",
         "service": "printify-connector",
-        "version": "2.5.0",
+        "version": __version__,
         "port": port,
         "blueprints_count": len(blueprints),
         "providers_count": len(providers),
-        "license": "100% Free & Open Access (Zero Paywalls)",
+        "api_token_configured": bool(os.environ.get("PRINTIFY_API_TOKEN")),
+        "license": "MIT",
         "daemon": live_info,
     }
 
@@ -86,7 +88,11 @@ def cmd_status(host: str = "127.0.0.1", port: int = 8115, as_json: bool = False)
     print(f"Daemon Status:      {state_color}{data['status'].upper()}{C_RESET} ({url})")
     print(f"Catalog Blueprints: {C_CYAN}{data['blueprints_count']} items cataloged{C_RESET}")
     print(f"Print Providers:    {C_GOLD}{data['providers_count']} verified partners{C_RESET}")
-    print(f"Access Guarantee:   100% Free & Open Access (Zero Paywalls)")
+    if data["api_token_configured"]:
+        print(f"Printify API:       {C_GREEN}PRINTIFY_API_TOKEN set (live mode){C_RESET}")
+    else:
+        print(f"Printify API:       {C_AMBER}PRINTIFY_API_TOKEN not set (offline reference data only){C_RESET}")
+    print("License:            MIT (100% Free & Open-Source)")
     print()
     return 0
 
@@ -120,7 +126,7 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Command: blueprints
     bp_parser = subparsers.add_parser("blueprints", help="List available print blueprints")
-    bp_parser.add_argument("--category", type=str, default=None, help="Filter by category (Apparel, Drinkware, Home)")
+    bp_parser.add_argument("--category", type=str, default=None, help="Filter by category (Apparel, Drinkware, Home, Stationery)")
 
     # Command: providers
     prov_parser = subparsers.add_parser("providers", help="List verified print providers")

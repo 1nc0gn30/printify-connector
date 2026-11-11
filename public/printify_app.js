@@ -115,8 +115,6 @@ const PROVIDERS = [
   { id: 16, name: "Spoke Custom Products", location: "Atlanta, GA (US)", rating: 9.2, days: 2.3, ship_us: 4.90, ship_add: 2.10 }
 ];
 
-let isProActive = true;
-
 // Toast Notification System
 function showToast(msg) {
   let toast = document.getElementById('printifyToast');
@@ -137,7 +135,7 @@ function showToast(msg) {
 
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", () => {
-  checkLicenseStatus();
+  initOpenAccessState();
   setupEventListeners();
   recalculateMargins();
   auditArtwork();
@@ -145,77 +143,17 @@ document.addEventListener("DOMContentLoaded", () => {
   generateProductPayload();
 });
 
-function hasProLicense() {
-  return true;
-}
-
-// Check License Status from localStorage or URL params
-function checkLicenseStatus() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const licenseParam = urlParams.get("licensed") || urlParams.get("pro") || urlParams.get("session_id");
-
-  if (licenseParam === "true" || urlParams.get("session_id")) {
-    localStorage.setItem("printify_pro_license", "PRINTIFY-PRO-2026");
-    localStorage.setItem("printify_pro_licensed", "true");
-    localStorage.setItem("agent_printify_pro", "PRINTIFY-PRO-2026");
-    localStorage.setItem("zoth_printify_licensed", "true");
-    localStorage.setItem("pro_licensed", "true");
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }
-
-  if (hasProLicense()) {
-    unlockProMode(false);
-  }
-}
-
-function unlockProMode(saveToStorage = true) {
-  isProActive = true;
-  if (saveToStorage) {
-    localStorage.setItem("printify_pro_license", "PRINTIFY-PRO-2026");
-    localStorage.setItem("printify_pro_licensed", "true");
-    localStorage.setItem("agent_printify_pro", "PRINTIFY-PRO-2026");
-    localStorage.setItem("zoth_printify_licensed", "true");
-    localStorage.setItem("pro_licensed", "true");
-  }
-
-  // Update UI Elements
+function initOpenAccessState() {
   const proBadge = document.getElementById("licenseBadge") || document.getElementById("pro-badge") || document.getElementById("proStatusBadge");
   if (proBadge) {
-    proBadge.innerText = "⭐ PRO ACTIVE";
+    proBadge.innerText = "✦ OPEN SOURCE";
     proBadge.classList.remove("badge-free");
     proBadge.classList.add("badge-pro");
     proBadge.style.background = "rgba(212, 175, 55, 0.2)";
     proBadge.style.color = "var(--gold)";
     proBadge.style.borderColor = "var(--gold)";
   }
-
-  const sb = document.getElementById("salesBanner");
-  if (sb) {
-    sb.style.display = "none";
-  }
-
-  document.body.classList.add("licensed", "pro-unlocked", "pro-licensed");
-
-  // Remove blur wrappers
-  const wrappers = document.querySelectorAll(".paywall-wrapper");
-  wrappers.forEach(w => w.classList.add("pro-unlocked"));
-
-  closePaywallModal();
-  showToast("⭐ Sovereign Pro License Active — All Features Unlocked!");
 }
-
-window.activateLicenseKey = function(key) {
-  if (!key) key = "PRINTIFY-PRO-2026";
-  localStorage.setItem("printify_pro_license", key);
-  localStorage.setItem("printify_pro_licensed", "true");
-  localStorage.setItem("agent_printify_pro", key);
-  localStorage.setItem("zoth_printify_licensed", "true");
-  localStorage.setItem("pro_licensed", "true");
-  unlockProMode(true);
-  return true;
-};
 
 // Setup Event Listeners
 function setupEventListeners() {
@@ -272,40 +210,6 @@ function setupEventListeners() {
       generateProductPayload();
     });
   }
-
-  // Modal open & close triggers
-  const btnHeaderKey = document.getElementById("btn-header-key");
-  if (btnHeaderKey) {
-    btnHeaderKey.addEventListener("click", () => openPaywallModal("Header Key Button"));
-  }
-
-  const btnUnlockPaywall = document.getElementById("btn-unlock-paywall");
-  if (btnUnlockPaywall) {
-    btnUnlockPaywall.addEventListener("click", () => openPaywallModal("Paywall Overlay"));
-  }
-
-  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
-  if (modal) {
-    modal.addEventListener("click", e => {
-      if (e.target === modal) closePaywallModal();
-    });
-  }
-
-  const keyInput = document.getElementById("license-key-input") || document.getElementById("licenseKeyInput");
-  if (keyInput) {
-    keyInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        activateKey();
-      }
-    });
-  }
-
-  window.addEventListener("keydown", e => {
-    if (e.key === "Escape") closePaywallModal();
-  });
-
-  setupSolanaTip();
 }
 
 // Handle Client-Side Image File Drag-and-Drop
@@ -495,8 +399,8 @@ function generateProductPayload() {
   }
 }
 
-// Open-Access Action Handlers (100% Unlocked by Default)
-function triggerProAction(actionName) {
+// Export & Copy Action Handlers
+function runAction(actionName) {
   if (actionName === "copy_payload") {
     const output = document.getElementById("payloadOutput") ? document.getElementById("payloadOutput").textContent : "";
     if (navigator.clipboard) {
@@ -509,10 +413,10 @@ function triggerProAction(actionName) {
         }
         showToast("✅ Printify Product Payload copied to clipboard!");
       }).catch(() => {
-        showToast("✅ Printify Product Payload copied to clipboard!");
+        showToast("Clipboard access denied — select the payload text and copy manually.");
       });
     } else {
-      showToast("✅ Printify Product Payload copied to clipboard!");
+      showToast("Clipboard API unavailable — select the payload text and copy manually.");
     }
   } else if (actionName === "export_matrix") {
     // Build real CSV
@@ -533,7 +437,7 @@ function triggerProAction(actionName) {
   } else if (actionName === "bulk_publisher") {
     // Generate configuration manifest
     const manifest = {
-      name: "Printify Pro Sovereign Automation Bundle",
+      name: "Printify Automation Bundle",
       version: "2.5.0",
       author: "1nc0gn30 (@1nc0gn30) • NullAI Platform",
       engine: "Autonomous Sovereign POD Matrix",
@@ -556,87 +460,4 @@ function triggerProAction(actionName) {
   } else {
     showToast(`✅ Action '${actionName}' executed successfully!`);
   }
-}
-
-function copySolanaAddress(btn) {
-  const addr = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
-  navigator.clipboard.writeText(addr).then(() => {
-    if (btn) {
-      const orig = btn.textContent;
-      btn.textContent = "✓ Solana Address Copied!";
-      setTimeout(() => { btn.textContent = orig; }, 2500);
-    }
-    showToast("✓ Solana Tip Address copied to clipboard!");
-  }).catch(() => {
-    window.open("solana:" + addr, "_blank");
-  });
-}
-window.copySolanaAddress = copySolanaAddress;
-
-// Paywall Modal Handlers
-function openPaywallModal(triggerContext = "") {
-  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
-  if (modal) {
-    modal.classList.add("is-open");
-    modal.style.display = "flex";
-  }
-}
-
-function closePaywallModal() {
-  const modal = document.getElementById("paywall-modal") || document.getElementById("paywallModal");
-  if (modal) {
-    modal.classList.remove("is-open");
-    modal.style.display = "none";
-  }
-}
-
-// License Activation Check
-function activateKey() {
-  const input = document.getElementById("license-key-input") || document.getElementById("licenseKeyInput");
-  const statusEl = document.getElementById("license-status");
-  const key = input ? input.value.trim() : "";
-
-  if (!key) {
-    if (statusEl) {
-      statusEl.style.color = "var(--ruby)";
-      statusEl.innerText = "Please enter a valid license key or receipt email.";
-    }
-    showToast("Please enter a valid license key or receipt email.");
-    return;
-  }
-
-  // Accept valid key or any active receipt format (>= 6 chars)
-  if (key.length >= 6) {
-    unlockProMode(true);
-    if (statusEl) {
-      statusEl.style.color = "var(--emerald)";
-      statusEl.innerText = "⭐ Sovereign Pro License Activated Successfully!";
-    }
-  } else {
-    if (statusEl) {
-      statusEl.style.color = "var(--ruby)";
-      statusEl.innerText = "Invalid license key (minimum 6 characters required).";
-    }
-    showToast("Invalid license key (minimum 6 characters required).");
-  }
-}
-
-// Voluntary Solana Tip Clipboard Helper
-function setupSolanaTip() {
-  document.querySelectorAll(".btn-solana_tip-trigger").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      if (window.SolanaTipButtons) return;
-      const solReceiver = "GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK";
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(solReceiver).then(() => {
-          showToast(`⚡ Solana Tip Address copied: ${solReceiver}`);
-        }).catch(() => {
-          showToast(`⚡ Solana Tip Address: ${solReceiver}`);
-        });
-      } else {
-        showToast(`⚡ Solana Tip Address: ${solReceiver}`);
-      }
-    });
-  });
 }

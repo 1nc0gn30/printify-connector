@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+from . import __version__
 from .artwork_auditor import audit_artwork
 from .catalog import PRINT_PROVIDERS, get_blueprint_by_id, search_blueprints
 from .client import PrintifyClient
@@ -106,7 +108,7 @@ def handle_tool_call(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
 
     elif name == "printify_get_print_providers":
         b_id = arguments["blueprint_id"]
-        return {"blueprint_id": b_id, "providers": client.get_print_providers(b_id)}
+        return {"blueprint_id": b_id, "source": "printify_api" if client.is_live else "offline_reference_catalog", "providers": client.get_print_providers(b_id)}
 
     elif name == "printify_calculate_margins":
         return calculate_margins(
@@ -142,43 +144,43 @@ def handle_tool_call(name: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
     raise ValueError(f"Unknown tool: {name}")
 
 
+def handle_request(req: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Dispatch one JSON-RPC 2.0 message. Returns None for notifications."""
+    req_id = req.get("id")
+    method = req.get("method")
+    if req_id is None and isinstance(method, str) and method.startswith("notifications/"):
+        return None
+    if method == "initialize":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {
+            "protocolVersion": (req.get("params") or {}).get("protocolVersion", "2024-11-05"),
+            "capabilities": {"tools": {}},
+            "serverInfo": {"name": "printify-connector", "version": __version__},
+        }}
+    if method == "ping":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {}}
+    if method == "tools/list":
+        return {"jsonrpc": "2.0", "id": req_id, "result": {"tools": TOOLS}}
+    if method == "tools/call":
+        params = req.get("params") or {}
+        try:
+            result = handle_tool_call(params.get("name"), params.get("arguments") or {})
+            return {"jsonrpc": "2.0", "id": req_id, "result": {
+                "content": [{"type": "text", "text": json.dumps(result, indent=2)}]}}
+        except Exception as exc:  # tool-level failure is reported to the model, not as a protocol error
+            return {"jsonrpc": "2.0", "id": req_id, "result": {
+                "isError": True, "content": [{"type": "text", "text": f"{type(exc).__name__}: {exc}"}]}}
+    return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": f"Method {method} not found"}}
+
+
 def run_mcp_server() -> None:
     """Run MCP JSON-RPC 2.0 stdio server loop."""
     for line in sys.stdin:
         if not line.strip():
             continue
         try:
-            req = json.loads(line)
-            req_id = req.get("id")
-            method = req.get("method")
-
-            if method == "tools/list":
-                resp = {"jsonrpc": "2.0", "id": req_id, "result": {"tools": TOOLS}}
-            elif method == "tools/call":
-                params = req.get("params", {})
-                name = params.get("name")
-                arguments = params.get("arguments", {})
-                result = handle_tool_call(name, arguments)
-                resp = {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "result": {
-                        "content": [{"type": "text", "text": json.dumps(result, indent=2)}]
-                    }
-                }
-            else:
-                resp = {
-                    "jsonrpc": "2.0",
-                    "id": req_id,
-                    "error": {"code": -32601, "message": f"Method {method} not found"}
-                }
+            resp = handle_request(json.loads(line))
+        except json.JSONDecodeError as e:
+            resp = {"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": f"Parse error: {e}"}}
+        if resp is not None:
             sys.stdout.write(json.dumps(resp) + "\n")
-            sys.stdout.flush()
-        except Exception as e:
-            err_resp = {
-                "jsonrpc": "2.0",
-                "id": None,
-                "error": {"code": -32000, "message": str(e)}
-            }
-            sys.stdout.write(json.dumps(err_resp) + "\n")
             sys.stdout.flush()

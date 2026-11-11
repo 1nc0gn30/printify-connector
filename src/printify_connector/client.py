@@ -22,19 +22,26 @@ class PrintifyClient:
 
     def __init__(self, token: Optional[str] = None, shop_id: Optional[str] = None) -> None:
         self.token = token or os.environ.get("PRINTIFY_API_TOKEN", "")
-        self.shop_id = shop_id or os.environ.get("PRINTIFY_SHOP_ID", "mock_shop_1nc0gn30")
+        self.shop_id = shop_id or os.environ.get("PRINTIFY_SHOP_ID", "")
         self.is_live = bool(self.token)
 
+    OFFLINE_MESSAGE = (
+        "PRINTIFY_API_TOKEN is not set. Live Printify API calls are disabled; "
+        "catalog, margin, audit and payload tools use the bundled offline reference data. "
+        "Create a token at https://printify.com/app/account/api and export PRINTIFY_API_TOKEN "
+        "(and optionally PRINTIFY_SHOP_ID) to enable live mode."
+    )
+
     def _request(self, endpoint: str, method: str = "GET", data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Make an authenticated HTTP request or fallback to mock mode."""
+        """Make an authenticated HTTP request. Raises when no API token is configured."""
         if not self.is_live:
-            return self._mock_response(endpoint, method, data)
+            raise RuntimeError(self.OFFLINE_MESSAGE)
 
         url = f"{self.BASE_URL}{endpoint}"
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
-            "User-Agent": "PrintifyConnector-Antigravity/1.0.0"
+            "User-Agent": "printify-connector/2.5.0"
         }
 
         body = json.dumps(data).encode("utf-8") if data else None
@@ -53,15 +60,12 @@ class PrintifyClient:
         """Retrieve shop metadata and connected sales channels."""
         if not self.is_live:
             return {
-                "id": self.shop_id,
-                "title": "1nc0gn30 • NullAI Sovereign POD Hub",
-                "sales_channel": "shopify,etsy",
-                "mode": "OFFLINE_DETERMINISTIC",
                 "api_connected": False,
-                "plan": "Printify Premium (Autonomous 20% Discount)",
-                "currency": "USD"
+                "mode": "OFFLINE",
+                "shop_id": self.shop_id or None,
+                "error": self.OFFLINE_MESSAGE,
             }
-        return self._request("/shops.json")
+        return {"api_connected": True, "mode": "LIVE", "shops": self._request("/shops.json")}
 
     def get_blueprints(self) -> List[Dict[str, Any]]:
         """List catalog blueprints."""
@@ -112,7 +116,7 @@ class PrintifyClient:
                 "position": area["position"],
                 "images": [
                     {
-                        "id": "img_autogen_1nc0gn30",
+                        "id": "artwork_upload_id",
                         "name": "artwork.png",
                         "type": "image/png",
                         "src": image_url,
@@ -135,15 +139,3 @@ class PrintifyClient:
         }
 
         return product_payload
-
-    def _mock_response(self, endpoint: str, method: str, data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-        """Internal mock handler for testing without API keys."""
-        if "blueprints" in endpoint:
-            return {"data": PRINTIFY_BLUEPRINTS}
-        if "shops" in endpoint:
-            return {
-                "id": "mock_shop_1nc0gn30",
-                "title": "1nc0gn30 • NullAI Sovereign Store",
-                "sales_channel": "shopify"
-            }
-        return {"status": "ok", "mode": "MOCK_MODE", "endpoint": endpoint}

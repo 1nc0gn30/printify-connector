@@ -6,6 +6,6 @@ Engineered by 1nc0gn30 (@1nc0gn30) • NullAI Platform.
 
 from __future__ import annotations
 
-__version__ = "1.0.0"
+__version__ = "2.5.0"
 __author__ = "1nc0gn30 (@1nc0gn30)"
 __entity__ = "1nc0gn30 • NullAI • NullAI Platform"

@@ -1,147 +1,138 @@
-<div align="center">
-  <img src="assets/hero-banner.svg" alt="Printify Connector — Sovereign Architecture Banner" width="100%" />
-</div>
+<p align="center">
+  <img src="assets/hero-banner.svg" alt="Printify Connector: Printify Open API v1 client, margin engine, artwork DPI auditor and MCP server" width="100%" />
+</p>
 
-<br />
+# Printify Connector
 
-# 📦 Printify Connector for Antigravity & Sovereign AI Agents
+Zero-dependency Python 3.10+ toolkit for Printify print-on-demand work: a bundled blueprint and print-provider reference catalog, a multi-channel margin calculator (Etsy, Shopify, direct checkout) with the 20% Printify Premium discount, a 300 DPI artwork auditor, a Printify v1 product-payload builder, a loopback HTTP workstation, and a 6-tool MCP stdio server.
 
-> ⚡ **Live Web Application**: [https://printify.nullai.tech](https://printify.nullai.tech)  
-> 🏛️ **Zoth Studio Workspace**: [https://zoth.nullai.tech/tools/printify-connector](https://zoth.nullai.tech/tools/printify-connector)  
-> 🛡️ **Sovereign Status**: 100% Free & Open-Access · Zero Paywalls · 100% Zero-Egress Compatible
+- Zoth Studio v2 dossier: https://zoth.nullai.tech/tools/printify-connector
+- Local workstation: `http://127.0.0.1:8115`
+- Runtime dependencies: none (Python standard library only)
+- License: MIT
 
-[![Audit](https://img.shields.io/badge/guardrail-100%25%20passed-emerald)](https://printify.nullai.tech)
-[![MCP Protocol](https://img.shields.io/badge/MCP-2024--11--05-blue)](https://modelcontextprotocol.io)
-[![Python](https://img.shields.io/badge/python-3.10%2B-gold)](https://python.org)
-[![Zero Pip](https://img.shields.io/badge/dependencies-0%20external-purple)](https://nullai.tech)
+## What It Does
 
-Autonomous **Printify Open API v1 Connector**, 20% Premium Margin Engine, Artwork DPI Auditor, and Antigravity MCP Suite for **Google Antigravity** AI agents and **Zoth Studio v2 / ZothOS Linux 3.3**. Exposes 6 Model Context Protocol (MCP) tools for catalog search, print provider routing, real-time fee & profit modeling across sales channels, artwork validation, and product payload generation.
+- **Catalog lookup**: 7 bundled blueprints (tee, crewneck, hoodie, mug, canvas wrap, tumbler, notebook) with standard and Premium base costs and print-area pixel sizes, plus 6 print providers with location, rating, turnaround and shipping rates.
+- **Margin engine**: for a blueprint and retail price, computes base cost, optional Premium discount, shipping, channel fees (Etsy 6.5% transaction + 3% payment + $0.25 + $0.20 listing; Shopify and direct checkout 2.9% + $0.30), net profit, margin %, break-even price, and recommended 30/50/65% margin price tiers.
+- **Artwork auditor**: checks pixel width/height, aspect ratio and effective DPI against a blueprint print area before upload.
+- **Payload builder**: generates a Printify v1 product-creation JSON body (variants priced in cents, print areas, tags).
+- **Shop info**: with `PRINTIFY_API_TOKEN` set, calls `GET /v1/shops.json`. Without a token it returns `api_connected: false` and an explanatory error; it never fabricates shop data.
 
----
+The catalog, margin, audit and payload tools run entirely offline on the bundled reference data. Prices in the bundled catalog are reference values; confirm current costs in your Printify dashboard before publishing.
 
-## 📖 What It Does
+## How It Works
 
-- **Printify Open API v1 Integration**: Search blueprints (Bella+Canvas 3001, Gildan 18000, Ceramic Mugs, Posters) and compare verified print providers (Monster Digital, SwiftPOD, District Photo, MyLocker).
-- **20% Printify Premium Margin Simulator**: Real-time margin calculator comparing Etsy, Shopify, and Direct Web3 sales channels, factoring in Printify Premium discounts and computing annual break-even order volume.
-- **Artwork DPI & Resolution Auditor**: Validates image dimensions and pixel density against exact physical print areas (e.g. 4000x4800 px @ 300 DPI) with zero-upload in-browser verification.
-- **Automated JSON Product Payloads**: Formats complete multi-variant product creation payloads for automated submission to Printify's API.
-- **100% Free & Open-Access**: Zero paywalls, zero license locks, zero telemetry leaks.
+```text
+src/printify_connector/
+├── catalog.py          # Bundled blueprint and print-provider reference data
+├── client.py           # Stdlib Printify v1 client (live only when PRINTIFY_API_TOKEN is set) + payload builder
+├── margin_engine.py    # COGS, Premium discount, channel fees, break-even, price tiers
+├── artwork_auditor.py  # Effective DPI, aspect ratio, print-area fit
+├── mcp_server.py       # MCP stdio server (JSON-RPC 2.0: initialize, tools/list, tools/call)
+├── server.py           # Loopback HTTP API + static workstation from public/
+└── cli.py              # `printify-connector` entry point
+bin/printify-connector       # Runs the CLI from a checkout without installing
+bin/printify-connector-tui   # Terminal summary + benchmark of the real margin/audit engine
+public/                      # Browser workstation (margin calculator, DPI auditor, payload builder)
+```
 
----
+The HTTP server only accepts browser `POST` requests from `localhost` / `127.0.0.1` / `[::1]` origins (CSRF guard) and binds to `127.0.0.1` unless you pass `--host` or set `ZOTH_BIND_HOST` to an IP literal.
 
-## ⚙️ How It Works
-
-1. **Standalone Enclave (`127.0.0.1:8115`)**: Powered by `server.py` serving a dark-glassmorphic cockpit with live `/health`, `/api/stats`, `/api/blueprints`, `/api/providers`, and `/api/margins` endpoints.
-2. **Zoth Studio v2 God-Mode Route**: Deeply integrated into the 77-Tool Sovereign Matrix at `/tools/printify-connector`.
-3. **ZothOS CLI (`printify-connector`)**: Native binary installed in `/usr/local/bin` and `~/.local/bin` for automated command-line audits and CI/CD pipelines.
-4. **Antigravity MCP Bridge**: Standard JSON-RPC 2.0 stdio server providing 6 autonomous tools for AI agents.
-
----
-
-## ⚡ 6 Model Context Protocol (MCP) Tools
-
-When registered in `~/.gemini/config/mcp_config.json`, Antigravity gains immediate access to:
-
-1. `printify_search_blueprints`: Search catalog blueprints by query or category.
-2. `printify_get_print_providers`: List verified print providers for a blueprint.
-3. `printify_calculate_margins`: Compute exact COGS, fees, net margins, and break-even pricing.
-4. `printify_audit_artwork`: Validate artwork pixel dimensions and DPI against print areas.
-5. `printify_create_product_payload`: Generate validated Printify product creation JSON payloads.
-6. `printify_get_shop_info`: Retrieve store connection status and channel metadata.
-
----
-
-## 💻 ZothOS CLI & Server Commands
+## Install
 
 ```bash
-# Check status and health
-printify-connector --status
-printify-connector status
+git clone https://github.com/1nc0gn30/printify-connector.git
+cd printify-connector
+python3 -m pip install -e .
 
-# Output telemetry in JSON format
-printify-connector --json
-
-# List available catalog blueprints
-printify-connector blueprints --category Apparel
-
-# Calculate profit margins with 20% Premium discount
-printify-connector margins --blueprint bella_canvas_3001 --price 28.00 --premium
-
-# Audit artwork resolution and DPI
-printify-connector audit --blueprint bella_canvas_3001 --width 4500 --height 5100
-
-# Launch standalone workstation server on port 8115
-python3 server.py --port 8115
+# Start the workstation on http://127.0.0.1:8115
+python3 server.py --host 127.0.0.1 --port 8115
+# or, after installing:
+printify-connector serve --port 8115
+# or, without installing:
+./bin/printify-connector serve
 ```
 
----
+`npm start` runs the same `python3 server.py --host 127.0.0.1 --port 8115`.
 
-## ☕ Support 1nc0gn30 • NullAI & NullAI
+## Configuration
 
-Printify Connector is 100% free, open-source, and sovereign software. If this tool brings you value, consider supporting our ongoing development:
-
-- **☕ Buy Us a Coffee (Stripe)**: [buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X)
-- **◎ Solana Tip Address**: `GG2eQbVh8ut1BK6j1A2tz7pSySdLpD38BgyEhGcxdXoK`
-
----
-
-<div align="center">
-  <sub>Engineered by <b>1nc0gn30 • NullAI</b> (<a href="https://github.com/1nc0gn30">@1nc0gn30</a>) &bull; <a href="https://nullai.tech">NullAI Platform</a> &bull; <a href="https://zoth.nullai.tech">Zoth Studio v2</a></sub>
-</div>
-
----
-
-## 🏛️ ZothOS v3.4, Zoth Studio v2 & Obsidian Second Brain Ecosystem
-
-```mermaid
-flowchart LR
-    subgraph ZothOS["🐧 ZothOS v3.4 CLI & Braille TUI"]
-        CLI["printify-connector --help / --json"]
-        TUI["printify-connector-tui<br/>Unicode U+2800 2x4 Braille"]
-    end
-
-    subgraph Workstation["⚡ Sovereign Workstation"]
-        WEB["http://127.0.0.1:8115<br/>REST API & /health"]
-    end
-
-    subgraph Studio["🌌 Zoth Studio v2 & ZothOS-Lite"]
-        GODMODE["http://127.0.0.1:3000/tools/printify-connector<br/>God-Mode Workstation"]
-        LITE["http://127.0.0.1:8145<br/>ZothOS-Lite Web Desktop"]
-    end
-
-    subgraph SecondBrain["💎 Obsidian Second Brain & STDP"]
-        TRACKER["http://127.0.0.1:8151<br/>Zoth Obsidian Tracker"]
-        NEURO["http://127.0.0.1:8094<br/>Neuro-Memory STDP Cortex"]
-        NOTE["Studio/Tools/Studio printify-connector.md"]
-    end
-
-    CLI --> WEB
-    TUI --> WEB
-    WEB <--> GODMODE
-    WEB <--> LITE
-    WEB --> TRACKER
-    TRACKER <--> NOTE
-    NOTE <--> NEURO
-```
-
-### Cross-Surface Integration Matrix
-
-| Surface | Endpoint / Binary | Capabilities |
+| Variable | Required | Purpose |
 | :--- | :--- | :--- |
-| **Standalone Workstation** | `http://127.0.0.1:8115` | 100% Free & Open-Access Web Deck, live `/health` & REST telemetry |
-| **Zoth Studio v2 Route** | `http://127.0.0.1:3000/tools/printify-connector` | Interactive God-Mode component inside Zoth Studio (`https://zoth.nullai.tech`) |
-| **ZothOS v3.4 CLI & TUI** | `printify-connector` / `printify-connector-tui` | Global binary in `/usr/local/bin/` with Unicode `U+2800` Braille TUI & `--json` output |
-| **ZothOS-Lite Web Desktop** | `http://127.0.0.1:8145` | Browser-native KDE-style window manager & terminal launcher |
-| **Zoth Obsidian Tracker** | `http://127.0.0.1:8151` | Interactive Obsidian Second Brain vault explorer (`~/Documents/Obsidian Vault/Studio/Tools/Studio printify-connector.md`) |
-| **Neuro-Memory STDP Cortex** | `http://127.0.0.1:8094` | 3-Factor STDP synaptic memory daemon & 21-tool MCP server |
+| `PRINTIFY_API_TOKEN` | No | Personal access token from https://printify.com/app/account/api. Enables live `GET /v1/shops.json` and live catalog calls. |
+| `PRINTIFY_SHOP_ID` | No | Shop ID reported in offline shop-info responses. |
+| `ZOTH_BIND_HOST` | No | IP literal to bind instead of `127.0.0.1` (e.g. `0.0.0.0`). |
+| `PORT` | No | Backend port used by the optional Electron shell (`electron/main.cjs`, default 8115). |
+
+## CLI Reference
 
 ```bash
-# Inspect CLI & Unicode U+2800 Braille TUI on ZothOS v3.4
 printify-connector --help
-printify-connector-tui --status
-printify-connector-tui --json
+printify-connector --version
+printify-connector --json                 # status as JSON (same as --status --json)
+printify-connector status [--json] [--port 8115]
+printify-connector serve [--host 127.0.0.1] [--port 8115]
+printify-connector mcp                    # MCP stdio server
+printify-connector blueprints [--category Apparel|Drinkware|Home|Stationery]
+printify-connector providers [--country US|UK|DE]
+printify-connector margins --blueprint bella_canvas_3001 --price 29.99 --shipping 4.99 [--premium]
+printify-connector audit --blueprint bella_canvas_3001 --width 4500 --height 5400 [--name design.png]
 
-# Verify Second Brain Vault & 12-Step Verification Gallery on :8151
-zoth-obsidian-tracker --verify
+printify-connector-tui [--json] [--price 28] [--iterations 50]
 ```
 
+`status` probes `http://<host>:<port>/health` and reports `online` or `standby`, catalog counts, and whether `PRINTIFY_API_TOKEN` is set.
+
+## MCP Reference
+
+```json
+{
+  "mcpServers": {
+    "printify-connector": { "command": "printify-connector", "args": ["mcp"] }
+  }
+}
+```
+
+| Tool | Description |
+| :--- | :--- |
+| `printify_search_blueprints` | Search the bundled catalog by keyword or category |
+| `printify_get_print_providers` | Providers for a blueprint (`source` field says live API vs offline reference) |
+| `printify_calculate_margins` | COGS, Premium discount, channel fees, break-even and net margin |
+| `printify_audit_artwork` | Pixel size, aspect ratio and effective DPI check |
+| `printify_create_product_payload` | Printify v1 product-creation JSON body |
+| `printify_get_shop_info` | Live shop list, or `api_connected: false` with a configuration hint |
+
+## REST Reference
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health`, `/api/health` | Status, version, bound port, `apiConfigured` |
+| `GET` | `/api/stats` | Catalog counts and supported channels |
+| `GET` | `/api/blueprints[?category=]` | Blueprint list |
+| `GET` | `/api/blueprints/<id>` | Single blueprint (404 if unknown) |
+| `GET` | `/api/providers[?country=]` | Provider list |
+| `GET` | `/api/providers/<id>` | Single provider (404 if unknown) |
+| `POST` | `/api/margins` | `{blueprintId, retailPrice, shippingCharged, hasPrintifyPremium, targetMarginPct}` |
+| `POST` | `/api/audit` | `{blueprintId, widthPx, heightPx, fileName, fileSizeBytes}` |
+| `POST` | `/api/shipping` | Shipping-rate lookup for a blueprint and destination |
+| `POST` | `/api/create-payload` | Printify product payload from `{blueprintId, printProviderId, title, description, tags, imageUrl}` |
+
+## Port
+
+`127.0.0.1:8115`, matching the `printify-connector` entry in Zoth Studio v2 `tools.json`. The same default is used by `server.py`, the CLI, `package.json` scripts and `electron/main.cjs`. On ZothOS v3.4.0 the `printify-connector` and `printify-connector-tui` commands are installed to `/usr/local/bin/`.
+
+## Testing
+
+```bash
+python3 -m pytest -q          # or: npm test
+gitleaks dir --no-banner .
+```
+
+Tests use an ephemeral port (`port=0`) for the HTTP server and make no external network calls.
+
+## License
+
+MIT. Copyright (c) 2026 [1nc0gn30](https://1nc0gn30.si) and [NullAI](https://nullai.tech). See [LICENSE](LICENSE).
+
+Free and open-source. Optional support: [Buy Us a Coffee (Stripe)](https://buy.stripe.com/3cIfZg27PdKo2D64Ocfw40X).
